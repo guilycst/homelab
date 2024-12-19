@@ -143,13 +143,12 @@ if [[ "$ROLE" == "control-plane" ]]; then
 
   echo "==> Control plane setup is complete. Save the join command below for worker nodes."
 
-  if [[ "$MAKE_WORKER" == "true" ]]; then
-    echo "==> Configuring control plane as a worker node..."
-    sudo kubeadm join 127.0.0.1:6443 --token $(kubeadm token list | tail -n 1 | awk '{print $1}') \
-      --discovery-token-ca-cert-hash $(openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | \
-      openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -binary | xxd -p -c 256)
-  fi
   kubeadm token create --print-join-command | tee $HOME/kubeadm_join_command.txt
+
+  if [[ "$MAKE_WORKER" == "true" ]]; then
+	echo "==> Configuring control plane as a worker node..."
+ 	kubectl taint nodes $(hostname) node-role.kubernetes.io/control-plane:NoSchedule-
+  fi
 
 elif [[ "$ROLE" == "node" ]]; then
   echo "==> Joining the cluster as a worker node..."
