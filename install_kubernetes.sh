@@ -153,7 +153,8 @@ if [[ "$ROLE" == "control-plane" ]]; then
 elif [[ "$ROLE" == "node" ]]; then
   echo "==> Joining the cluster as a worker node..."
   sudo kubeadm join $CONTROL_PLANE_IP:6443 --token $TOKEN \
-    --discovery-token-ca-cert-hash $HASH
+    --discovery-token-ca-cert-hash $HASH \
+    --cri-socket=unix:///var/run/cri-dockerd.sock
 
   echo "==> Node setup is complete."
 else
